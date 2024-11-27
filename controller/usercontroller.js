@@ -1,10 +1,11 @@
 const User = require('../models/user')
 const bcrypt = require('bcrypt')
+const jwt=  require('jsonwebtoken')
 const saltRounds = 5
 
 exports.register = async (req,res,next)=>{
     try{
-        const {name, password} = req.body;
+        const {email,name, password} = req.body;
         const user = await User.findOne({name : name})
         if(!user){
             var today = new Date();
@@ -17,6 +18,7 @@ exports.register = async (req,res,next)=>{
             // bcrypt.hash(password, saltRounds, (err, hash) {
                 let new_user = new User({
                     name : name,
+                    email : email,
                     password : hashed_password,
                     history : "",
                     createdAt : today
@@ -31,3 +33,33 @@ exports.register = async (req,res,next)=>{
         res.status(400).send({message : err})
     }
 }
+
+
+exports.login = async(req,res)=>{
+    try{
+        const {email,password} = req.body;
+
+        //check for email if exists
+
+        let user = await User.findOne({email : email});
+        
+        if(!user){
+            throw("Does not exists")
+        }
+        // it exists
+        const issame = await bcrypt.compare(password, user.password);
+        if(!issame){
+            throw("Password error")
+        }
+        const token = jwt.sign({user},'lodekasignature')
+        
+        res.status(200).cookie('token',token, { maxAge: 36000, httpOnly: true }).json({userdetial : {
+           email : user.email ,
+           name : user.name
+        }})
+
+    }catch(err){
+        res.status(400).json({message : err})
+    }
+}
+
