@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const fileUpload = require('express-fileupload');
 const fileRoute = express.Router();
+const pdfparse=require('../utils/pdfparse')
 
 const uploadDir = path.join(__dirname, 'uploads');
 
@@ -14,7 +15,7 @@ if (!fs.existsSync(uploadDir)) {
 fileRoute.use(fileUpload());
 
 fileRoute.post('/upload', (req, res) => {
-    console.log("lawda hit to ho ja")
+
     if (!req.files || !req.files.file) {
         return res.status(400).send('No files were uploaded.');
     }
@@ -38,6 +39,8 @@ fileRoute.post('/upload', (req, res) => {
             console.error('File upload error:', err);
             return res.status(500).send('Error uploading file.');
         }
+        console.log(filePath)
+        pdfparse(filePath)
         res.status(200).json({
             message: 'File uploaded successfully',
             filename: filename,
@@ -61,5 +64,7 @@ fileRoute.get('/uploads/:filename', (req, res) => {
         }
     });
 });
+
+
 
 module.exports = fileRoute;

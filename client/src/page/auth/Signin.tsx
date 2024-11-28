@@ -45,7 +45,12 @@ const Signin: React.FC = () => {
       const res = await axios.post("http://localhost:3000/api/v1/login", {
         email,
         password,
-      });
+
+      }
+      ,
+      {headers : {
+        Accept : '*'
+      }});
       localStorage.setItem("userdetail", JSON.stringify(res.data.userdetial));
       navigate("/");
       window.location.reload();

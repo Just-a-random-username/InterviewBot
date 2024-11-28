@@ -11,6 +11,7 @@ const Upload: React.FC = () => {
 
   const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    console.log(file)
     validateFile(file);
   };
 

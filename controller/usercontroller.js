@@ -55,7 +55,7 @@ exports.login = async(req,res)=>{
             throw("Password error")
         }
         const token = jwt.sign({user},'lodekasignature')
-        res.status(200).cookie('token',token, { maxAge: 36000, httpOnly: true }).json({userdetial : {
+        res.status(200).cookie('token',token, {  httpOnly: true ,expires:new Date(Date.now() + 3600000)}).json({userdetial : {
            email : user.email ,
            name : user.name
         }})
@@ -65,3 +65,10 @@ exports.login = async(req,res)=>{
     }
 }
 
+exports.logout = ()=>{
+    try {
+        res.clearCookie('token').status(200).json({message : "Logout success "});
+    } catch (error) {   
+        res.status(400).json({message : "Login first "})
+    }
+}

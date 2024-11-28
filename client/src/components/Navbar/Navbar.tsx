@@ -21,7 +21,10 @@ const Navbar = () => {
     }
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async() => {
+    await fetch('http://localhost:3000/api/v1/logout',{
+      method : 'POST'
+    })
     localStorage.removeItem("userdetail");
     setUserDetail(null);
     navigate("/login");
