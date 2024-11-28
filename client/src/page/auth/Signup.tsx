@@ -1,14 +1,17 @@
 import React, { useState } from "react";
+import axios from "axios";
 import { motion } from "framer-motion";
 import { LogIn, Mail, Lock, Eye, EyeOff, GitBranch } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
 
 const Signup = () => {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
+  const [loginError,setLoginError] = useState(null)
 
   const validateForm = () => {
     const newErrors = {};
@@ -33,11 +36,17 @@ const Signup = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
-
-    if (validateForm()) {
-      console.log("Signup submitted", { name, email, password });
+    try {
+      
+      const res = await axios.post('http://localhost:3000/api/v1/register',{
+        name,email,password
+      })
+      navigate('/login')
+    } catch (error) {
+      setLoginError(error.message)
+      console.log(error) 
     }
   };
 
@@ -164,6 +173,7 @@ const Signup = () => {
         </div> */}
 
         <div className="text-center mt-6 text-gray-300">
+          {loginError}
           Already have an account?{" "}
           <Link to="/login" className="text-blue-400 hover:text-blue-300">
             Sign In

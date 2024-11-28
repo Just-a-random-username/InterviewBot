@@ -6,12 +6,24 @@ import { Menu, X, User, Upload, Home, LogIn } from "lucide-react";
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [userdetail,setUserdetail]=useState(null)
+  
+
+
+
+useEffect(()=>{
+  let user_desc = localStorage.getItem('userdetail');
+  if(user_desc){
+    setUserdetail(JSON.parse(user_desc))
+  }
+},[])
 
   const navLinks = [
     { name: "Home", path: "/", icon: Home },
     { name: "Upload Resume", path: "/upload", icon: Upload },
-    { name: "Login", path: "/login", icon: LogIn },
-    { name: "Signup", path: "/signup", icon: User },
+    userdetail?{ name: "Logout", path: "/logout", icon: LogIn }:{ name: "Login", path: "/login", icon: LogIn },
+    //@ts-ignore
+    userdetail?{name : userdetail.name , path : "/profile" , icon : User}:{ name: "Signup", path: "/signup", icon: User },
   ];
 
   const toggleMenu = () => setIsOpen(!isOpen);
