@@ -1,19 +1,24 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { LogIn, Mail, Lock, Eye, EyeOff, GitBranch } from "lucide-react";
-import { Link,useNavigate} from "react-router-dom";
+import { LogIn, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 
-const Signin = () => {
+interface Errors {
+  email?: string;
+  password?: string;
+}
+
+const Signin: React.FC = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState({});
-  const [err,seterr] = useState(null)
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [errors, setErrors] = useState<Errors>({});
+  const [err, setErr] = useState<string | null>(null);
 
-  const validateForm = () => {
-    const newErrors = {};
+  const validateForm = (): boolean => {
+    const newErrors: Errors = {};
 
     if (!email) {
       newErrors.email = "Email is required";
@@ -31,30 +36,27 @@ const Signin = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!validateForm()) return;
+
     try {
-      
-      const res = await axios.post('http://localhost:3000/api/v1/login',{
-        email,password
-      })
-      localStorage.setItem('userdetail',JSON.stringify(res.data.userdetial))
-      navigate('/')
-      if (validateForm()) {
-        console.log("Login submitted", { email, password });
-      }
+      const res = await axios.post("http://localhost:3000/api/v1/login", {
+        email,
+        password,
+      });
+      localStorage.setItem("userdetail", JSON.stringify(res.data.userdetial));
+      navigate("/");
+      window.location.reload();
     } catch (error) {
-      seterr(err)
+      if (axios.isAxiosError(error) && error.response) {
+        setErr(error.response.data?.message || "An error occurred during login");
+      } else {
+        setErr("An unexpected error occurred.");
+      }
     }
   };
-
-//   const socialLoginOptions = [
-//     {
-//       icon: GitBranch,
-//       name: "GitHub",
-//       color: "text-gray-100",
-//     },
-//   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-blue-900 flex items-center justify-center p-4">
@@ -67,9 +69,7 @@ const Signin = () => {
         <div className="text-center mb-8">
           <LogIn className="mx-auto text-blue-400 mb-4" size={50} />
           <h2 className="text-3xl font-bold text-white">Welcome Back</h2>
-          <p className="text-gray-300 mt-2">
-            Sign in to continue to InterviewAI
-          </p>
+          <p className="text-gray-300 mt-2">Sign in to continue to InterviewAI</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -142,23 +142,12 @@ const Signin = () => {
             Sign In
           </button>
         </form>
-        {/* <div className="mt-6">
-          <div className="flex items-center justify-center space-x-4">
-            {socialLoginOptions.map((social) => (
-              <button
-                key={social.name}
-                className={`${social.color} bg-white/10 p-3 rounded-full hover:bg-white/20 transition-colors`}
-              >
-                <social.icon size={24} />
-              </button>
-            ))}
-          </div>
-        </div> */}
+
+        {err && <p className="text-red-400 text-center mt-4">{err}</p>}
 
         <div className="text-center mt-6 text-gray-300">
           Don't have an account?{" "}
           <Link to="/signup" className="text-blue-400 hover:text-blue-300">
-          {err}
             Sign Up
           </Link>
         </div>

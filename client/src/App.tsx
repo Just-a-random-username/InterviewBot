@@ -5,7 +5,7 @@ import Upload from "./page/Resumeupload/Upload";
 import Footer from "./components/Navbar/Footer";
 import Signin from "./page/auth/Signin";
 import Signup from "./page/auth/Signup";
-import Privateroutes from "./Privateroute";
+import PrivateRoutes from "./Privateroute";
 
 function App() {
   return (
@@ -13,9 +13,23 @@ function App() {
       <BrowserRouter>
         <Navbar />
         <Routes>
-          <Privateroutes path="/" Children = {<Route element={<Home />} />} />
-          
-          <Route path="/upload" element={<Upload />} />
+          <Route
+            path="/"
+            element={
+              <PrivateRoutes>
+                <Home />
+              </PrivateRoutes>
+            }
+          />
+          <Route
+            path="/upload"
+            element={
+              <PrivateRoutes>
+                <Upload />
+              </PrivateRoutes>
+            }
+          />
+
           <Route path="/login" element={<Signin />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="*" element={<h1>404 Not Found</h1>} />

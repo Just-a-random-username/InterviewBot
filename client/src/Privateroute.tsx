@@ -1,20 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, ReactNode } from 'react';
 import Signin from './page/auth/Signin';
 
-const Privateroutes= ({Children}: any) => {
-    const [exists,setexists] = useState(false)
-    useEffect(()=>{
-        let user_desc = localStorage.getItem('userdetail');
-        if(user_desc){
-            setexists(true)
-        }
-    },[])
+interface PrivateRoutesProps {
+  children: ReactNode;
+}
 
-    return(
-        <>
-        {exists ? <Children/>: <Signin/>}
-        </>
-    )
+const PrivateRoutes: React.FC<PrivateRoutesProps> = ({ children }) => {
+  const [exists, setExists] = useState<boolean>(false);
+
+  useEffect(() => {
+    const userDesc = localStorage.getItem('userdetail');
+    if (userDesc) {
+      setExists(true);
+    }
+  }, []);
+
+  return <>{exists ? children : <Signin />}</>;
 };
 
-export default Privateroutes;
+export default PrivateRoutes;

@@ -1,32 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, FormEvent } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { LogIn, Mail, Lock, Eye, EyeOff, GitBranch } from "lucide-react";
-import { Link,useNavigate } from "react-router-dom";
+import { LogIn, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 
-const Signup = () => {
+const Signup: React.FC = () => {
   const navigate = useNavigate();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState({});
-  const [loginError,setLoginError] = useState(null)
+  const [name, setName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [loginError, setLoginError] = useState<string | null>(null);
 
-  const validateForm = () => {
-    const newErrors = {};
+  const validateForm = (): boolean => {
+    const newErrors: { [key: string]: string } = {};
 
-    if (!name) {
+    if (!name.trim()) {
       newErrors.name = "Name is required";
     }
 
-    if (!email) {
+    if (!email.trim()) {
       newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(email)) {
       newErrors.email = "Email is invalid";
     }
 
-    if (!password) {
+    if (!password.trim()) {
       newErrors.password = "Password is required";
     } else if (password.length < 8) {
       newErrors.password = "Password must be at least 8 characters";
@@ -36,27 +36,25 @@ const Signup = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
+    if (!validateForm()) return;
+
     try {
-      
-      const res = await axios.post('http://localhost:3000/api/v1/register',{
-        name,email,password
-      })
-      navigate('/login')
+      await axios.post("http://localhost:3000/api/v1/register", {
+        name,
+        email,
+        password,
+      });
+      navigate("/login");
     } catch (error) {
-      setLoginError(error.message)
-      console.log(error) 
+      setLoginError(
+        error instanceof Error ? error.message : "Something went wrong"
+      );
+      console.error("Signup error:", error);
     }
   };
-
-  //   const socialLoginOptions = [
-  //     {
-  //       icon: GitBranch,
-  //       name: "GitHub",
-  //       color: "text-gray-100",
-  //     },
-  //   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-blue-900 flex items-center justify-center p-4">
@@ -159,21 +157,8 @@ const Signup = () => {
           </button>
         </form>
 
-        {/* <div className="mt-6">
-          <div className="flex items-center justify-center space-x-4">
-            {socialLoginOptions.map((social) => (
-              <button
-                key={social.name}
-                className={`${social.color} bg-white/10 p-3 rounded-full hover:bg-white/20 transition-colors`}
-              >
-                <social.icon size={24} />
-              </button>
-            ))}
-          </div>
-        </div> */}
-
         <div className="text-center mt-6 text-gray-300">
-          {loginError}
+          {loginError && <p className="text-red-400">{loginError}</p>}
           Already have an account?{" "}
           <Link to="/login" className="text-blue-400 hover:text-blue-300">
             Sign In

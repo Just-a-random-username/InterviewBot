@@ -1,30 +1,32 @@
-import { useState, useRef } from "react";
+import React, { useState, useRef, DragEvent, ChangeEvent } from "react";
+import axios from "axios";
 import { motion } from "framer-motion";
 import { FileText, Upload as UploadIcon, X } from "lucide-react";
 
-const Upload = () => {
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [uploadError, setUploadError] = useState("");
-  const fileInputRef = useRef(null);
+const Upload: React.FC = () => {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadError, setUploadError] = useState<string>("");
+  const [filePreview, setFilePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileSelect = (event: any) => {
-    const file = event.target.files[0];
+  const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     validateFile(file);
   };
 
-  const handleDragOver = (event) => {
+  const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.stopPropagation();
   };
 
-  const handleDrop = (event) => {
+  const handleDrop = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.stopPropagation();
     const file = event.dataTransfer.files[0];
     validateFile(file);
   };
 
-  const validateFile = (file) => {
+  const validateFile = (file?: File) => {
     if (!file) {
       setUploadError("No file selected");
       return;
@@ -42,19 +44,49 @@ const Upload = () => {
 
     setSelectedFile(file);
     setUploadError("");
-  };
 
-  const handleUpload = () => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFilePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+  
+
+  const handleUpload = async () => {
     if (!selectedFile) {
       setUploadError("Please select a file first");
       return;
     }
 
-    console.log("Uploading file:", selectedFile);
+    try {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      const response = await axios.post(
+        "http://localhost:3000/api/v1/upload",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.data.success) {
+        console.log("File uploaded successfully:", response.data.file);
+        setUploadError("");
+      } else {
+        setUploadError(response.data.message);
+      }
+    } catch (err:any) {
+      console.error("Upload error:", err.response?.data || err.message);
+      setUploadError(err.response?.data?.message || "Failed to upload file");
+    }
   };
 
   const removeFile = () => {
     setSelectedFile(null);
+    setFilePreview(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -82,37 +114,57 @@ const Upload = () => {
             id="fileInput"
           />
 
-          <label
-            htmlFor="fileInput"
-            className="cursor-pointer flex flex-col items-center space-y-4"
-          >
-            <UploadIcon size={50} className="text-blue-400" />
-            <h2 className="text-2xl font-semibold text-white">
-              Upload Your Resume
-            </h2>
-            <p className="text-gray-300">
-              Drag and drop or click to select a PDF file
-            </p>
-          </label>
+          {!selectedFile && (
+            <label
+              htmlFor="fileInput"
+              className="cursor-pointer flex flex-col items-center space-y-4"
+            >
+              <UploadIcon size={50} className="text-blue-400" />
+              <h2 className="text-2xl font-semibold text-white">
+                Upload Your Resume
+              </h2>
+              <p className="text-gray-300">
+                Drag and drop or click to select a PDF file
+              </p>
+            </label>
+          )}
 
           {selectedFile && (
-            <div className="mt-6 flex items-center justify-between bg-white/10 rounded-lg p-4">
-              <div className="flex items-center space-x-4">
-                <FileText className="text-blue-400" size={30} />
-                <div>
-                  <p className="text-white font-medium">{selectedFile.name}</p>
-                  <p className="text-gray-400 text-sm">
-                    
-                    {(selectedFile.size / 1024).toFixed(2)} KB
-                  </p>
+            <div className="space-y-6">
+              <div className="mt-6 flex items-center justify-between bg-white/10 rounded-lg p-4">
+                <div className="flex items-center space-x-4">
+                  <FileText className="text-blue-400" size={30} />
+                  <div>
+                    <p className="text-white font-medium">
+                      {selectedFile.name}
+                    </p>
+                    <p className="text-gray-400 text-sm">
+                      {(selectedFile.size / 1024).toFixed(2)} KB
+                    </p>
+                  </div>
                 </div>
+                <button
+                  onClick={removeFile}
+                  className="text-red-400 hover:text-red-600"
+                >
+                  <X size={24} />
+                </button>
               </div>
-              <button
-                onClick={removeFile}
-                className="text-red-400 hover:text-red-600"
-              >
-                <X size={24} />
-              </button>
+
+              {filePreview && (
+                <div className="mt-4">
+                  <h3 className="text-white text-lg mb-2">File Preview</h3>
+                  <div className="bg-white/10 rounded-lg p-4 flex justify-center items-center">
+                    <iframe
+                      src={filePreview}
+                      width="100%"
+                      height="400px"
+                      className="border rounded-lg"
+                      title="PDF Preview"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

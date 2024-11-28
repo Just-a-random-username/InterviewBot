@@ -1,29 +1,41 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, User, Upload, Home, LogIn } from "lucide-react";
+
+interface UserDetail {
+  name: string;
+  email: string;
+}
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [userdetail,setUserdetail]=useState(null)
-  
+  const [userDetail, setUserDetail] = useState<UserDetail | null>(null);
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    const user_desc = localStorage.getItem("userdetail");
+    if (user_desc) {
+      setUserDetail(JSON.parse(user_desc));
+    }
+  }, []);
 
-
-useEffect(()=>{
-  let user_desc = localStorage.getItem('userdetail');
-  if(user_desc){
-    setUserdetail(JSON.parse(user_desc))
-  }
-},[])
+  const handleLogout = () => {
+    localStorage.removeItem("userdetail");
+    setUserDetail(null);
+    navigate("/login");
+  };
 
   const navLinks = [
     { name: "Home", path: "/", icon: Home },
     { name: "Upload Resume", path: "/upload", icon: Upload },
-    userdetail?{ name: "Logout", path: "/logout", icon: LogIn }:{ name: "Login", path: "/login", icon: LogIn },
-    //@ts-ignore
-    userdetail?{name : userdetail.name , path : "/profile" , icon : User}:{ name: "Signup", path: "/signup", icon: User },
+    userDetail
+      ? { name: "Logout", path: "#", icon: LogIn, action: handleLogout }
+      : { name: "Login", path: "/login", icon: LogIn },
+    userDetail
+      ? { name: userDetail.name, path: "/profile", icon: User }
+      : { name: "Signup", path: "/signup", icon: User },
   ];
 
   const toggleMenu = () => setIsOpen(!isOpen);
@@ -34,18 +46,18 @@ useEffect(()=>{
       setScrolled(offset > 50);
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener("scroll", handleScroll);
     };
   }, []);
 
   return (
-    <nav 
+    <nav
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-        scrolled 
-          ? 'bg-gray-900/80 backdrop-blur-md shadow-lg' 
-          : 'bg-transparent'
+        scrolled
+          ? "bg-gray-900/80 backdrop-blur-md shadow-lg"
+          : "bg-transparent"
       }`}
     >
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
@@ -55,21 +67,31 @@ useEffect(()=>{
 
         <div className="hidden md:flex space-x-6 items-center">
           {navLinks.map((link) => (
-            <Link
-              key={link.path}
-              to={link.path}
-              className="text-white/80 hover:text-white transition-colors duration-300 flex items-center space-x-2"
-            >
-              <link.icon size={20} />
-              <span>{link.name}</span>
-            </Link>
+            <div key={link.name}>
+              {link.action ? (
+                <button
+                  onClick={link.action}
+                  className="text-white/80 hover:text-white flex items-center space-x-2"
+                >
+                  <link.icon size={20} />
+                  <span>{link.name}</span>
+                </button>
+              ) : (
+                <Link
+                  to={link.path}
+                  className="text-white/80 hover:text-white flex items-center space-x-2"
+                >
+                  <link.icon size={20} />
+                  <span>{link.name}</span>
+                </Link>
+              )}
+            </div>
           ))}
         </div>
 
-    
         <div className="md:hidden fixed top-4 right-4 z-[9999]">
-          <button 
-            onClick={toggleMenu} 
+          <button
+            onClick={toggleMenu}
             className="text-white focus:outline-none"
           >
             {isOpen ? <X size={30} /> : <Menu size={30} />}
@@ -79,20 +101,20 @@ useEffect(()=>{
 
       <AnimatePresence>
         {isOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-gradient-to-b from-gray-900 to-blue-900 z-[9998] md:hidden"
           >
-            <motion.div 
+            <motion.div
               initial={{ y: -50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2 }}
               className="container mx-auto px-4 py-20 space-y-8"
             >
-              <Link 
-                to="/" 
+              <Link
+                to="/"
                 onClick={toggleMenu}
                 className="block text-4xl font-bold text-white text-center"
               >
@@ -102,19 +124,32 @@ useEffect(()=>{
               <div className="space-y-6">
                 {navLinks.map((link) => (
                   <motion.div
-                    key={link.path}
+                    key={link.name}
                     initial={{ x: -50, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     transition={{ delay: 0.3 }}
                   >
-                    <Link
-                      to={link.path}
-                      onClick={toggleMenu}
-                      className="flex items-center justify-center space-x-4 text-2xl text-white/80 hover:text-white transition-colors duration-300 py-4"
-                    >
-                      <link.icon size={30} />
-                      <span>{link.name}</span>
-                    </Link>
+                    {link.action ? (
+                      <button
+                        onClick={() => {
+                          link.action();
+                          toggleMenu();
+                        }}
+                        className="flex items-center justify-center space-x-4 text-2xl text-white/80 hover:text-white py-4"
+                      >
+                        <link.icon size={30} />
+                        <span>{link.name}</span>
+                      </button>
+                    ) : (
+                      <Link
+                        to={link.path}
+                        onClick={toggleMenu}
+                        className="flex items-center justify-center space-x-4 text-2xl text-white/80 hover:text-white py-4"
+                      >
+                        <link.icon size={30} />
+                        <span>{link.name}</span>
+                      </Link>
+                    )}
                   </motion.div>
                 ))}
               </div>
