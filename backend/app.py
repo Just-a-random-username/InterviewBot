@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import os
 
 # Import your modules
-from dbs.db import connect_my_db
+from utils.connectdb_utils import connectDb
 from routes.userroute import user_route
 from routes.filehandleRoute import file_route  # Updated import for file routes
 from middleware.auth import middleware
@@ -23,8 +23,7 @@ CORS(app)
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # File size limit (5MB)
 
 # Connect to database
-connect_my_db(app)
-
+connectDb()
 # Register blueprints with appropriate prefixes
 app.register_blueprint(user_route, url_prefix='/api/v1')
 app.register_blueprint(file_route, url_prefix='/api/v1')
