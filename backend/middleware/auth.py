@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 import jwt
 from functools import wraps
-from models import User  # Assuming your User model is defined with SQLAlchemy
+from models.user import User  # Assuming your User model is defined with SQLAlchemy
 
 auth_bp = Blueprint('auth_bp', __name__)
 secret_key = 'lodekasignature'

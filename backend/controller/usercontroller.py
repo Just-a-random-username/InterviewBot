@@ -2,13 +2,13 @@ from flask import Blueprint, request, jsonify, make_response
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 import datetime
-from models import User  # Assuming you've defined a User model with SQLAlchemy or any ORM you're using
+from models.user import User # Assuming you've defined a User model with SQLAlchemy or any ORM you're using
 
-user_bp = Blueprint('user_bp', __name__)
+user_blueprint = Blueprint('user_bp', __name__)
 saltRounds = 5
-secret_key = 'lodekasignature'
+secret_key = 'secret_key'
 
-@user_bp.route('/register', methods=['POST'])
+@user_blueprint.route('/register', methods=['POST'])
 def register():
     try:
         data = request.json
@@ -39,7 +39,7 @@ def register():
         return jsonify({"message": str(err)}), 400
 
 
-@user_bp.route('/login', methods=['POST'])
+@user_blueprint.route('/login', methods=['POST'])
 def login():
     try:
         data = request.json
@@ -65,7 +65,7 @@ def login():
         return jsonify({"message": str(err)}), 400
 
 
-@user_bp.route('/logout', methods=['POST'])
+@user_blueprint.route('/logout', methods=['POST'])
 def logout():
     try:
         response = make_response(jsonify({"message": "Logout success"}), 200)

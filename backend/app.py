@@ -6,9 +6,9 @@ import os
 
 # Import your modules
 from dbs.db import connect_my_db
-from controller.usercontroller import user_blueprint
+from routes.userroute import user_route
 from routes.filehandleRoute import file_route  # Updated import for file routes
-from middleware.auth import auth_middleware
+from middleware.auth import middleware
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -26,12 +26,12 @@ app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # File size limit (5MB)
 connect_my_db(app)
 
 # Register blueprints with appropriate prefixes
-app.register_blueprint(user_blueprint, url_prefix='/api/v1/user')
-app.register_blueprint(file_route, url_prefix='/api/v1/file')
+app.register_blueprint(user_route, url_prefix='/api/v1')
+app.register_blueprint(file_route, url_prefix='/api/v1')
 
 # Sample protected route
 @app.route('/gg', methods=['GET'])
-@auth_middleware
+@middleware
 def protected_route():
     return jsonify({"message": "done"}), 200
 
