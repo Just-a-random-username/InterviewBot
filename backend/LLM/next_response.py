@@ -2,17 +2,17 @@ from flask import Blueprint, request, jsonify
 
 next_response = Blueprint('next_response',__name__)
 
-@next_response.route('/generate',methods=['GET'])
+@next_response.route('/generate',methods=['POST'])
 def generate_questions():
     text = request.get_json()
-    text.get('conversational_history')
+    conversation = str(text.get('conversational_history'))
     from transformers import AutoModelForCausalLM, AutoTokenizer
     model_name = "nvidia/AceInstruct-1.5B"
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype="float32", device_map="cuda")
     prompt = """"
-    Continue the conversation based on the conversation given below, your role is "INTERVIEWER" :
-    """ + text
+    Continue the conversation based on the conversation given below, your role is "INTERVIEWER". Only generate dialogue of the interviewer :
+    """ + conversation
 
     messages = [{"role": "user", "content": prompt}]
 
