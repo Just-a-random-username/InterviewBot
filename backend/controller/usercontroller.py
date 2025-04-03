@@ -11,12 +11,13 @@ secret_key = 'secret_key'
 @user_blueprint.route('/register', methods=['POST'])
 def register():
     try:
-        data = request.json
+        data = request.get_json()
         email = data.get('email')
         name = data.get('name')
         password = data.get('password')
-
+        print(data)
         user = User.query.filter_by(name=name).first()
+        print("User  : ",user)
 
         if user:
             return jsonify({"message": "already exists"}), 400
