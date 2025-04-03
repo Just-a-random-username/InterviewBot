@@ -6,6 +6,7 @@ import Footer from "./components/Navbar/Footer";
 import Signin from "./page/auth/Signin";
 import Signup from "./page/auth/Signup";
 import PrivateRoutes from "./Privateroute";
+import ChatbotApp from "./page/ChatPage/Chatpage";
 
 function App() {
   return (
@@ -16,22 +17,23 @@ function App() {
           <Route
             path="/"
             element={
-              <PrivateRoutes>
+              // <PrivateRoutes>
                 <Home />
-              </PrivateRoutes>
+              // </PrivateRoutes>
             }
           />
           <Route
             path="/upload"
             element={
-              <PrivateRoutes>
+              // <PrivateRoutes>
                 <Upload />
-              </PrivateRoutes>
+              // </PrivateRoutes>
             }
           />
 
           <Route path="/login" element={<Signin />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/chatbot" element={<ChatbotApp />} />
           <Route path="*" element={<h1>404 Not Found</h1>} />
         </Routes>
         <Footer />
