@@ -7,6 +7,8 @@ import os
 # Import your modules
 from utils.connectdb_utils import connectDb
 from routes.userroute import user_route
+from LLM.question_generation import question_route
+from LLM.next_response import next_response
 from routes.filehandleRoute import file_route  # Updated import for file routes
 from middleware.auth import middleware
 
@@ -27,6 +29,9 @@ connectDb()
 # Register blueprints with appropriate prefixes
 app.register_blueprint(user_route, url_prefix='/api/v1')
 app.register_blueprint(file_route, url_prefix='/api/v1')
+app.register_blueprint(question_route,url_prefix='/api/v1/question')
+app.register_blueprint(next_response,url_prefix='/api/v1/llm_response')
+
 
 # Sample protected route
 @app.route('/gg', methods=['GET'])

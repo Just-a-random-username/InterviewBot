@@ -1,8 +1,8 @@
 from flask import Blueprint, request, jsonify
 
-question_route = Blueprint('question_generation',__name__)
+next_response = Blueprint('next_response',__name__)
 
-@question_route.route('/generate',methods=['GET'])
+@next_response.route('/generate',methods=['GET'])
 def generate_questions():
     text = request.get_json()
     text.get('conversational_history')

@@ -11,7 +11,6 @@ def connectDb() -> pymongo.synchronous.database.Database:
         # end example code here
         mydb = client["Capstone"]
         print(type(mydb))
-        user = mydb['users']
         client.admin.command("ping")
         print("Connected successfully")
         return mydb
