@@ -32,5 +32,8 @@ def generate_questions(prompt_text)->list:
     for i in range(len(questions)):
         new_question = questions[i].split('. ')
         questions[i] = new_question[len(new_question)-1]
+    for question in questions:
+        if len(question)==0:
+            questions.remove(question)
     
     return questions
