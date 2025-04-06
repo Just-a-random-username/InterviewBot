@@ -3,7 +3,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
 from models.user import User # Assuming you've defined a User model with SQLAlchemy or any ORM you're using
 from utils.connectdb_utils import connectDb
-from token_wrap.token_required import token_required
 import jwt
 import app
 
