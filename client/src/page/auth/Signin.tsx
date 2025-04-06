@@ -51,7 +51,7 @@ const Signin: React.FC = () => {
       {headers : {
         Accept : '*'
       }});
-      localStorage.setItem("userdetail", JSON.stringify(res.data.userdetial));
+      localStorage.setItem("userdetail", JSON.stringify(res.data.userdetail));
       navigate("/");
       window.location.reload();
     } catch (error) {

@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, User, Upload, Home, LogIn } from "lucide-react";
+import { Menu, X, User, Upload, Home, LogIn ,Bot, icons} from "lucide-react";
 
 interface UserDetail {
   name: string;
   email: string;
+  token : string;
 }
 
 const Navbar = () => {
@@ -15,16 +16,13 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const user_desc = localStorage.getItem("userdetail");
+    const user_desc= localStorage.getItem("userdetail");
     if (user_desc) {
-      setUserDetail(JSON.parse(user_desc));
+      setUserDetail(JSON.stringify(user_desc));
     }
   }, []);
 
   const handleLogout = async() => {
-    await fetch('http://localhost:3000/api/v1/logout',{
-      method : 'POST'
-    })
     localStorage.removeItem("userdetail");
     setUserDetail(null);
     navigate("/login");
@@ -36,9 +34,12 @@ const Navbar = () => {
     userDetail
       ? { name: "Logout", path: "#", icon: LogIn, action: handleLogout }
       : { name: "Login", path: "/login", icon: LogIn },
-    userDetail
+      {name : "Chabot", path : userDetail ? "/chatbot":"/login" , icon : Bot},
+      // userDetail ? {name : "Chabot", path : "/chatbot" , icon : Bot} :{name : "",path : "",icons : ""},
+      userDetail
       ? { name: userDetail.name, path: "/profile", icon: User }
-      : { name: "Signup", path: "/signup", icon: User },
+      : { name: "Signup", path: "/signup", icon: User }
+    
   ];
 
   const toggleMenu = () => setIsOpen(!isOpen);
@@ -69,8 +70,8 @@ const Navbar = () => {
         </Link>
 
         <div className="hidden md:flex space-x-6 items-center">
-          {navLinks.map((link) => (
-            <div key={link.name}>
+          {navLinks.map((link,id) => (
+            <div key={id}>
               {link.action ? (
                 <button
                   onClick={link.action}

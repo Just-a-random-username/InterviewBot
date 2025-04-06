@@ -1,9 +1,6 @@
 from flask import Flask, jsonify
-from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from dotenv import load_dotenv
-import os
-
 # Import your modules
 from utils.connectdb_utils import connectDb
 from routes.userroute import user_route
@@ -19,13 +16,14 @@ app = Flask(__name__)
 load_dotenv()
 
 # Enable CORS
-CORS(app)
+CORS(app, supports_credentials=True)
 
+secret_key = "YOUR_SECRET_KEY"
 # Middleware for parsing JSON and cookies
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # File size limit (5MB)
-
+app.config['SECRET_KEY'] = secret_key
 # Connect to database
-connectDb()
+database = connectDb()
 # Register blueprints with appropriate prefixes
 app.register_blueprint(user_route, url_prefix='/api/v1')
 app.register_blueprint(file_route, url_prefix='/api/v1')

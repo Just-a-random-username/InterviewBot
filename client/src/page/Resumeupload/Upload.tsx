@@ -63,12 +63,15 @@ const Upload: React.FC = () => {
     try {
       const formData = new FormData();
       formData.append("file", selectedFile);
+      const userDetail= JSON.stringify(localStorage.getItem('userDetail'))
+      const token = JSON.parse(userDetail)
       const response = await axios.post(
         "http://localhost:3000/api/v1/upload",
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
+            "token": token
           },
         }
       );
