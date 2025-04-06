@@ -3,6 +3,9 @@ import os
 import time
 import pdfplumber  # For parsing PDFs
 from werkzeug.utils import secure_filename
+from models.user_info import get_user_info
+from utils.connectdb_utils import connectDb
+from LLM.question_generation import generate_questions
 
 file_route = Blueprint('file_route', __name__)
 
@@ -12,6 +15,8 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 ALLOWED_EXTENSIONS = {'pdf'}
 MAX_SIZE = 5 * 1024 * 1024  # 5 MB
 
+database = connectDb()
+users = database['users']
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -30,6 +35,9 @@ def parse_pdf(file_path):
 
 @file_route.route('/upload', methods=['POST'])
 def upload_file():
+    print(request.headers)
+    token = request.headers.get('token')
+    details = get_user_info(token)
     if 'file' not in request.files:
         return jsonify({"error": "No file part"}), 400
 
@@ -51,7 +59,11 @@ def upload_file():
         file.save(file_path)
 
         parsed_text = parse_pdf(file_path)
-
+        update_pdf = {'$set':{"pdf_data":parsed_text}}
+        users.update_one(details,update_pdf)
+        questions = generate_questions(parsed_text)
+        update_questions = {'$set':{"questions":questions}}
+        users.update_one(details,update_questions)
         return jsonify({
             "message": "File uploaded successfully",
             "filename": filename,

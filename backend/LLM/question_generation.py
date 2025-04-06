@@ -1,19 +1,13 @@
-from flask import Blueprint, request, jsonify
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
-question_route = Blueprint('question_generation',__name__)
-
-@question_route.route('/generate',methods=['GET'])
-def generate_questions():
-    text = request.get_json()
-    text.get('text')
-    from transformers import AutoModelForCausalLM, AutoTokenizer
+def generate_questions(prompt_text)->list:
     model_name = "nvidia/AceInstruct-1.5B"
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype="float32", device_map="cuda")
     prompt = """"
     Generate questions based on the below resume using Skills and Projects. Only return the questions, with no other data such as "Here are the questions", etc.
-    Make the questions be separated by empty lines in between
-    """ + text
+    Make the questions be separated by one empty line in between. Do not add bullets, even numerical bullets
+    """ + prompt_text
 
     messages = [{"role": "user", "content": prompt}]
 
@@ -34,4 +28,9 @@ def generate_questions():
 
     response = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
     del model 
-    return response
+    questions = response.split('\n')
+    for i in range(len(questions)):
+        new_question = questions[i].split('. ')
+        questions[i] = new_question[len(new_question)-1]
+    
+    return questions
