@@ -18,6 +18,8 @@ class User:
         self.history = history
         self.created_at = datetime.utcnow()
         self._id = None  # MongoDB's primary key will be set after insert
+        self.conversation = """Interviewer : Hello!My name is Ace and I'm excited to start our conversation. How would you like to introduce yourself?
+"""
     
     def save(self):
         """Save the user to MongoDB"""
@@ -26,7 +28,8 @@ class User:
             "email": self.email,
             "password": self.password,
             "history": self.history,
-            "created_at": self.created_at
+            "created_at": self.created_at,
+            "conversation": self.conversation
         }
         
         # If this is an update (document already has an ID)

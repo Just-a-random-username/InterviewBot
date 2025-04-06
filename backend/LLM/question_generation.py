@@ -35,5 +35,5 @@ def generate_questions(prompt_text)->list:
     for question in questions:
         if len(question)==0:
             questions.remove(question)
-    
+    questions.insert(0,"""Hello! I'm excited to start our conversation. How would you like to introduce yourself?\n""")
     return questions
