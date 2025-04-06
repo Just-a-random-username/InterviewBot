@@ -34,7 +34,8 @@ const ChatbotApp: React.FC = () => {
     const fetchedQuestions = [
       "What is your name?",
       "How old are you?",
-      "What is your favorite color?"
+      "What is your favorite color?",
+      "what is cid"
     ];
     setQuestions(fetchedQuestions);
   };
@@ -45,32 +46,33 @@ const ChatbotApp: React.FC = () => {
   };
 
   const handleSendMessage = () => {
-    if (!userInput.trim() && !transcript.trim()) return;
-
+    if (!userInput.trim()) return;
+  
+    // ✅ Add this block to restrict to one user response per question
+    const alreadyResponded = messages.some(msg => msg.sender === "user");
+    if (alreadyResponded) return;
+  
     const input = userInput || transcript;
-
+  
     setMessages(prev => [...prev, { text: input, sender: "user" }]);
-    // tempsetMessages(prev => [...prev, { text: input, sender: "user" }]);
     setUserResponses(prev => [...prev, input]);
     setUserInput("");
     setLoading(true);
-
+  
     setTimeout(() => {
-      // here comes the logic where we will send the question and answer to backend
-
-
-      const response = "Alright proceed to next question" ;
+      const response = "Alright proceed to next question";
       setMessages(prev => [...prev, { text: response, sender: "ai" }]);
-      setLoading(false);
-      resetTranscript(); // Clear transcript only after processing
+      resetTranscript();
     }, 1000);
   };
+  
 
   const handleVoiceInput = () => {
     SpeechRecognition.startListening();
   };
 
   const handleNextQuestion = () => {
+    setLoading(!loading)
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setMessages([]);
@@ -79,6 +81,8 @@ const ChatbotApp: React.FC = () => {
       setFinished(true);
     }
   };
+
+  
 
   // Enhanced Result Page
 if (finished) {
@@ -130,7 +134,11 @@ if (finished) {
             <div className="text-white">{questions[currentQuestionIndex]}</div>
             {messages.map((message, index) => (
               <div key={index} className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-xs px-4 py-2 rounded-lg ${message.sender === "user" ? "bg-blue-600" : "bg-gray-700"} text-white`}>
+                <div
+                  className={`max-w-xs px-4 py-2 rounded-lg break-words whitespace-pre-wrap ${
+                    message.sender === "user" ? "bg-blue-600" : "bg-gray-700"
+                  } text-white`}
+                >
                   {message.text}
                 </div>
               </div>
@@ -138,16 +146,16 @@ if (finished) {
           </div>
 
           <div className="flex items-center space-x-4">
-            <button 
+            {/* <button 
               onClick={handleVoiceInput} 
               className={`bg-blue-600 text-white rounded-full p-2 ${listening ? "animate-pulse" : ""}`}
             >
               <Mic size={24} />
-            </button>
+            </button> */}
             <input
               type="text"
               ref={messageInputRef}
-              value={transcript}
+              value={userInput}
               onChange={(e) => setUserInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
               className="w-full px-4 py-2 rounded-lg bg-white/10 text-white"
@@ -156,7 +164,7 @@ if (finished) {
             <button onClick={handleSendMessage} className="bg-blue-600 text-white rounded-full p-2">
               <Send size={24} />
             </button>
-            <button onClick={handleNextQuestion} className="bg-green-600 text-white rounded-full p-2">
+            <button onClick={handleNextQuestion} disabled= {loading?false:true}  className="bg-green-600 text-white rounded-full p-2">
               <ArrowRight size={24} />
             </button>
           </div>
