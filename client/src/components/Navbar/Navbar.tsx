@@ -65,7 +65,7 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <Link to="/" className="text-2xl font-bold text-white">
-          InterviewAI
+          InterviewBot
         </Link>
 
         <div className="hidden md:flex space-x-6 items-center">
