@@ -4,6 +4,7 @@ import React, { useState, useRef, ChangeEvent, useEffect } from "react";
 import { motion } from "framer-motion";
 import { MessageSquare, Send, X, Mic, ArrowRight } from "lucide-react";
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'
+import axios from "axios";
 
 interface Message {
   text: string;
@@ -31,12 +32,11 @@ const ChatbotApp: React.FC = () => {
   }, [started]);
 
   const fetchQuestions = async () => {
-    const fetchedQuestions = [
-      "What is your name?",
-      "How old are you?",
-      "What is your favorite color?",
-      "what is cid"
-    ];
+    const userDetail= localStorage.getItem('userdetail');
+    const token = (JSON.parse(userDetail)).token;
+    const response = await axios.post('http://localhost:3000/get_questions',{"token":token});
+    
+    const fetchedQuestions = response.data.questions;
     setQuestions(fetchedQuestions);
   };
 
